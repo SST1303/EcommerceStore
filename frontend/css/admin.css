@@ -1,0 +1,519 @@
+/* Reset */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* Body */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+
+/* Admin Navbar */
+
+.admin-navbar {
+    background-color: #222;
+    color: white;
+    padding: 15px 40px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.admin-navbar h2 {
+    font-size: 22px;
+    margin: 0;
+    margin-right: auto;
+}
+
+.admin-navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.admin-navbar a:hover {
+    color: #ddd;
+    text-decoration: underline;
+}
+
+
+/* Logout */
+
+#logoutBtn {
+    border: none;
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#logoutBtn:hover {
+    background-color: #c0392b;
+}
+
+/* Dashboard */
+
+.admin-dashboard {
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.admin-dashboard h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.welcome-message {
+    text-align: center;
+    color: #666;
+    margin-bottom: 35px;
+}
+
+
+/* Dashboard Cards */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+
+/* Card */
+
+.dashboard-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h2 {
+    margin-bottom: 12px;
+}
+
+.dashboard-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+
+/* Card Link */
+
+.dashboard-card a {
+    display: inline-block;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+}
+
+.dashboard-card a:hover {
+    background-color: #555;
+}
+
+
+/* Responsive */
+
+@media (max-width: 600px) {
+
+    .admin-navbar {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .admin-dashboard {
+        margin-top: 30px;
+    }
+}
+
+
+/* ======= Admin Products ======= */
+
+.admin-products {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.products-header h1 {
+    margin: 0;
+}
+
+.add-product-btn {
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 5px;
+}
+
+.add-product-btn:hover {
+    background-color: #555;
+}
+
+
+/* Products Container */
+
+.admin-products-container {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+
+/* Product Card */
+
+.admin-product-card {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Product Image */
+
+.admin-product-image {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    display: block;
+}
+
+
+/* Product Info */
+
+.admin-product-info {
+    padding: 20px;
+}
+
+.admin-product-info h3 {
+    margin-bottom: 10px;
+}
+
+.admin-product-info p {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+
+/* Actions */
+
+.admin-product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.edit-product-btn,
+.delete-product-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-product-btn {
+    background-color: #3498db;
+}
+
+.edit-product-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-product-btn {
+    background-color: #e74c3c;
+}
+
+.delete-product-btn:hover {
+    background-color: #c0392b;
+}
+
+
+/* Responsive */
+
+@media (max-width: 600px) {
+
+    .products-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .add-product-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+}
+
+
+/* ======= Add Product Form ======= */
+.admin-form-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.admin-form-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#addProductForm {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #777;
+}
+
+.save-product-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.save-product-btn:hover {
+    background-color: #555;
+}
+
+#formMessage {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .admin-form-container {
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    #addProductForm {
+        padding: 20px;
+    }
+}
+
+
+/* ======= Edit Product ======= */
+
+#editProductForm {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ======= Admin Orders ======= */
+
+.admin-orders {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.admin-orders h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#ordersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-order-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.admin-order-info {
+    flex: 1;
+}
+
+.admin-order-info h3 {
+    margin-bottom: 12px;
+}
+
+.admin-order-info p {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.admin-order-info strong {
+    color: #333;
+}
+
+.admin-order-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.view-admin-order-btn,
+.update-status-btn {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.view-admin-order-btn {
+    background-color: #3498db;
+}
+
+.view-admin-order-btn:hover {
+    background-color: #2980b9;
+}
+
+.update-status-btn {
+    background-color: #333;
+}
+
+.update-status-btn:hover {
+    background-color: #555;
+}
+
+.status-select {
+    padding: 9px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+@media (max-width: 700px) {
+
+    .admin-order-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-order-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .status-select,
+    .view-admin-order-btn,
+    .update-status-btn {
+        width: 100%;
+    }
+
+}
+
+
+/* ======= Admin Navbar Links ======= */
+
+.admin-navbar nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.admin-navbar nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.admin-navbar nav a:hover {
+    text-decoration: underline;
+}
+
+
+/* Admin Navbar Responsive */
+
+@media (max-width: 700px) {
+
+    .admin-navbar {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .admin-navbar nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+}

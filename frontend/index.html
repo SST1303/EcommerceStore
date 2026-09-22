@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Store</title>
+    <link rel="stylesheet" href="css/product.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+
+        <div class="logo"> Ecommerce Store </div>
+
+        <div class="nav-links">
+
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+
+            <a href="admin/dashboard.html" id="adminDashboardLink"> Admin Dashboard </a>
+
+            <a href="login.html" id="loginLink" style="display: none;">
+                Login
+            </a>
+
+            <button id="logoutBtn"> Logout </button>
+
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main>
+
+        <section class="products-section">
+
+            <h1>Products</h1>
+
+            <!-- Search -->
+            <div class="search-box">
+
+                <input type="text" id="searchInput" placeholder="Search products...">
+
+            </div>
+
+
+            <!-- Products -->
+            <div id="productsContainer" class="products-container">
+
+                <p>Loading products...</p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+
+</body>
+
+</html>

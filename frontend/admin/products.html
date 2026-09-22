@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+    <!-- Admin Navbar -->
+
+    <header class="admin-navbar">
+
+        <h2> Ecommerce Store - Admin </h2>
+
+        <nav>
+
+            <a href="dashboard.html">Dashboard</a>
+            <a href="products.html">Products</a>
+            <a href="add_product.html">Add Product</a>
+            <a href="orders.html">Orders</a>
+            
+            <button id="logoutBtn">Logout</button>
+        </nav>
+
+    </header>
+
+
+    <!-- Products Section -->
+
+    <main class="admin-products">
+
+        <div class="products-header">
+
+            <h1> Manage Products </h1>
+
+            <a href="add_product.html" class="add-product-btn"> + Add Product </a>
+
+        </div>
+
+
+        <!-- Products -->
+
+        <div id="productsContainer" class="admin-products-container">
+            <p class="message"> Loading products... </p>
+        </div>
+
+    </main>
+
+
+    <script src="../js/config.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/admin_products.js"></script>
+
+</body>
+
+</html>

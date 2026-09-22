@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+    <!-- Admin Navbar -->
+
+    <header class="admin-navbar">
+
+        <h2> Ecommerce Store - Admin </h2>
+
+        <a href="dashboard.html">Dashboard</a>
+        <a href="products.html">Products</a>
+        <a href="add_product.html">Add Product</a>
+        <a href="orders.html">Orders</a>
+
+        <button id="logoutBtn"> Logout </button>
+
+    </header>
+
+
+    <!-- Dashboard -->
+
+    <main class="admin-dashboard">
+
+        <h1> Admin Dashboard </h1>
+
+        <p class="welcome-message"> Welcome to the Admin Panel </p>
+
+        <!-- Dashboard Cards -->
+
+        <div class="dashboard-cards">
+
+            <div class="dashboard-card">
+
+                <h2> Products </h2>
+
+                <p> Manage all products </p>
+
+                <a href="products.html"> Manage Products </a>
+
+            </div>
+
+            <div class="dashboard-card">
+
+                <h2> Add Product </h2>
+
+                <p> Add a new product </p>
+
+                <a href="add_product.html"> Add Product </a>
+
+            </div>
+
+            <div class="dashboard-card">
+
+                <h2> Orders </h2>
+
+                <p> View and manage customer orders </p>
+
+                <a href="orders.html"> Manage Orders </a>
+
+            </div>
+        </div>
+    </main>
+
+
+    <script src="../js/config.js"></script>
+    <script src="../js/admin.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Product</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="admin-navbar">
+    <h2>Ecommerce Store - Admin</h2>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="products.html">Products</a>
+      <a href="orders.html">Orders</a>
+      
+      <button id="logoutBtn">Logout</button>
+    </nav>
+  </header>
+
+  <!-- Main Content Form -->
+  <main class="admin-form-container">
+    <h1>Add Product</h1>
+
+    <form id="addProductForm">
+      <div class="form-group">
+        <label for="name">Product Name</label>
+       
+        <input 
+          type="text" 
+          id="name" 
+          placeholder="Enter product name" 
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+       
+        <textarea 
+          id="description" 
+          placeholder="Enter product description" 
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price</label>
+        
+        <input 
+          type="number" 
+          id="price" 
+          placeholder="Enter price" 
+          min="0" 
+          step="0.01" 
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock</label>
+       
+        <input 
+          type="number" 
+          id="stock" 
+          placeholder="Enter stock quantity" 
+          min="0" 
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="image_url">Image File Name</label>
+        <input 
+          type="text" 
+          id="image_url" 
+          placeholder="Example: laptop.jpg"
+        >
+        <small>Image should be inside images/products folder.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="category_id">Category ID</label>
+        
+        <input 
+          type="number" 
+          id="category_id" 
+          placeholder="Example: 1"
+        >
+      </div>
+
+      <button type="submit" class="save-product-btn">Add Product</button>
+
+      <p id="formMessage"></p>
+
+    </form>
+  </main>
+
+  <!-- Scripts -->
+  <script src="../js/config.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/admin_add_product.js"></script>
+
+</body>
+</html>
