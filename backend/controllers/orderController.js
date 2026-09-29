@@ -286,11 +286,41 @@ const updateOrderStatus = async (req, res) => {
 };
 
 
+// Cancel order
+const cancelOrder = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const orderId = req.params.id;
+
+        const result = await orderModel.cancelOrder(orderId, userId);
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({
+                message: "Order cannot be cancelled"
+            });
+        }
+
+        res.json({
+            message: "Order cancelled successfully",
+            status: "CANCELLED"
+        });
+
+    } catch (error) {
+        console.error("Cancel order error:", error);
+
+        res.status(500).json({
+            message: "Unable to cancel order"
+        });
+    }
+};
+
+
 module.exports = {
     placeOrder,
     getUserOrders,
     getOrderDetails,
     getAllOrders,
     getAdminOrderDetails,
-    updateOrderStatus
+    updateOrderStatus,
+    cancelOrder
 };

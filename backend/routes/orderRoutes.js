@@ -22,6 +22,8 @@ router.get("/my-orders", orderController.getUserOrders);
 
 router.get("/:id", orderController.getOrderDetails);
 
+router.put("/:id/cancel", orderController.cancelOrder);
+
 
 // Admin Routes
 

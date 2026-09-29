@@ -92,6 +92,27 @@ function displayOrders(orders) {
 
             const orderDate = new Date(order.created_at).toLocaleString();
 
+            // Cancel button only for PLACED and CONFIRMED
+
+            let cancelButton = "";
+
+            if (
+                order.status === "PLACED" ||
+                order.status === "CONFIRMED"
+            ) {
+
+                cancelButton =
+                `
+                    <button
+                        class="cancel-order-btn"
+                        onclick="cancelOrder(${order.id})"
+                    >
+                        Cancel Order
+                    </button>
+                `;
+            }
+
+
             orderCard.innerHTML =
                 `
                 <div class="order-info">
@@ -119,14 +140,18 @@ function displayOrders(orders) {
 
                 </div>
 
-                <button
-                    class="view-order-btn"
-                    onclick="viewOrder(
-                        ${order.id}
-                    )"
-                >
-                    View Details
-                </button>
+                <div class="order-actions">
+
+                    <button
+                        class="view-order-btn"
+                        onclick="viewOrder(${order.id})"
+                    >
+                        View Details
+                    </button>
+
+                    ${cancelButton}
+
+                </div>
                 `;
 
 
@@ -144,6 +169,53 @@ function viewOrder(orderId) {
 }
 
 
+// CANCEL ORDER
+
+async function cancelOrder(orderId) {
+
+    const confirmCancel = confirm("Are you sure you want to cancel this order?");
+
+    if (!confirmCancel) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/orders/${orderId}/cancel`,
+                {
+                    method: "PUT",
+
+                    headers: { "Authorization": `Bearer ${token}` }
+                }
+            );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            alert(data.message || "Unable to cancel order");
+
+            return;
+        }
+
+        alert("Order cancelled successfully");
+
+
+        // Reload orders
+
+        loadOrders();
+
+    } catch (error) {
+
+        console.error("Cancel order error:", error);
+
+        alert("Unable to connect to server");
+    }
+}
+
+
 // LOGOUT
 
 if (logoutBtn) {
@@ -153,10 +225,10 @@ if (logoutBtn) {
         function () {
 
             localStorage.removeItem("token");
+
             localStorage.removeItem("user");
 
             window.location.href = "login.html";
         }
     );
 }
-

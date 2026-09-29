@@ -202,6 +202,23 @@ const updateOrderStatus = async (orderId, status) => {
 };
 
 
+// Cancel order
+const cancelOrder = async (orderId, userId) => {
+    const [result] = await db.query(
+        `
+        UPDATE orders
+        SET status = 'CANCELLED'
+        WHERE id = ?
+        AND user_id = ?
+        AND status IN ('PLACED', 'CONFIRMED')
+        `,
+        [orderId, userId]
+    );
+
+    return result;
+};
+
+
 module.exports = {
     createOrder,
     addOrderItem,
@@ -210,5 +227,6 @@ module.exports = {
     getOrderItems,
     getAllOrders,
     getOrderByIdForAdmin,
-    updateOrderStatus
+    updateOrderStatus,
+    cancelOrder
 };
