@@ -57,8 +57,18 @@ function displayOrders(orders) {
 
         orderCard.innerHTML = `
             <div class="admin-order-info">
-                <h3>Order #${order.id}</h3>
-                <p>Customer ID: ${order.user_id}</p>
+                <h3> Order #${order.id} </h3>
+                <p> Customer: ${order.user_name} </p>
+                <p> Email: ${order.email} </p>
+                <p> Phone: ${order.phone} </p>
+                <p> <strong>Delivery Address:</strong> </p>
+                <p>
+                    ${order.full_name}<br>
+                    ${order.address}<br>
+                    ${order.city},
+                    ${order.state} -
+                    ${order.pincode}
+                </p>
                 <p>Total: ₹${Number(order.total_amount).toFixed(2)}</p>
                 <p>Date: ${orderDate}</p>
                 <p>Current Status: <strong>${order.status}</strong></p>
@@ -96,7 +106,7 @@ function displayOrders(orders) {
 
 // VIEW ORDER DETAILS
 function viewAdminOrder(orderId) {
-    window.location.href = `../order_details.html?id=${orderId}`;
+    window.location.href = `admin_order_details.html?id=${orderId}`;
 }
 
 // UPDATE ORDER STATUS

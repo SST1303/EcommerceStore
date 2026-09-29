@@ -120,6 +120,60 @@ const clearCart = async (cartId) => {
 };
 
 
+// Get selected cart items
+const getSelectedCartItems = async (userId, cartItemIds) => {
+    if (!cartItemIds || cartItemIds.length === 0) {
+        return [];
+    }
+
+    const placeholders = cartItemIds.map(() => "?").join(",");
+
+    const [rows] = await db.query(
+        `
+        SELECT 
+            c.id AS cart_id,
+            ci.id AS cart_item_id,
+            ci.product_id,
+            p.name,
+            p.description,
+            p.price,
+            p.image_url,
+            ci.quantity,
+            (p.price * ci.quantity) AS subtotal
+        FROM cart c
+        JOIN cart_items ci ON c.id = ci.cart_id
+        JOIN products p ON ci.product_id = p.id
+        WHERE c.user_id = ?
+        AND ci.id IN (${placeholders})
+        `,
+        [userId, ...cartItemIds]
+    );
+
+    return rows;
+};
+
+
+// Remove selected cart items
+const removeSelectedCartItems = async (cartId, cartItemIds) => {
+    if (!cartItemIds || cartItemIds.length === 0) {
+        return;
+    }
+
+    const placeholders = cartItemIds.map(() => "?").join(",");
+
+    const [result] = await db.query(
+        `
+        DELETE FROM cart_items
+        WHERE cart_id = ?
+        AND id IN (${placeholders})
+        `,
+        [cartId, ...cartItemIds]
+    );
+
+    return result;
+};
+
+
 module.exports = {
     getCartByUserId,
     findCartByUserId,
@@ -128,5 +182,7 @@ module.exports = {
     addCartItem,
     updateCartItem,
     removeCartItem,
-    clearCart
+    clearCart,
+    getSelectedCartItems,
+    removeSelectedCartItems
 };

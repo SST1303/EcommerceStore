@@ -338,6 +338,11 @@ body {
     margin-bottom: 30px;
 }
 
+.cart-product-wrapper {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .cart-item {
     background-color: white;
     padding: 20px;
@@ -348,6 +353,27 @@ body {
     align-items: center;
     gap: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.cart-item.selected {
+    border: 2px solid #333;
+}
+
+.product-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.product-actions button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
 }
 
 .cart-item-info {
@@ -508,6 +534,63 @@ body {
     font-size: 16px;
 }
 
+
+/* Delivery Address */
+
+.delivery-address {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.delivery-address h2 {
+    margin-bottom: 12px;
+}
+
+.delivery-address p {
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Checkout Address Form */
+
+.address-section {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.address-section h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
 
 /* =========== Orders ========== */
 
@@ -721,3 +804,5 @@ body {
 #adminDashboardLink {
     display: none;
 }
+
+

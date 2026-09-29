@@ -1,18 +1,48 @@
 const db = require("../config/db");
 
 // Create new order
-const createOrder = async (userId, totalAmount, status) => {
+const createOrder = async (
+    userId,
+    totalAmount,
+    status,
+    fullName,
+    phone,
+    address,
+    city,
+    state,
+    pincode
+) => {
     const [result] = await db.query(
         `
-        INSERT INTO orders (user_id, total_amount, status)
-        VALUES (?, ?, ?)
+        INSERT INTO orders
+        (
+            user_id,
+            total_amount,
+            status,
+            full_name,
+            phone,
+            address,
+            city,
+            state,
+            pincode
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
-        [userId, totalAmount, status]
+        [
+            userId,
+            totalAmount,
+            status,
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            pincode
+        ]
     );
 
     return result.insertId;
 };
-
 
 // Add product to order
 const addOrderItem = async (orderId, productId, quantity, price) => {
@@ -56,6 +86,12 @@ const getOrderById = async (orderId, userId) => {
         SELECT
             o.id,
             o.user_id,
+            o.full_name,
+            o.phone,
+            o.address,
+            o.city,
+            o.state,
+            o.pincode,
             o.total_amount,
             o.status,
             o.created_at
@@ -101,6 +137,12 @@ const getAllOrders = async () => {
             o.user_id,
             u.name AS user_name,
             u.email,
+            o.full_name,
+            o.phone,
+            o.address,
+            o.city,
+            o.state,
+            o.pincode,
             o.total_amount,
             o.status,
             o.created_at
@@ -112,6 +154,36 @@ const getAllOrders = async () => {
     );
 
     return rows;
+};
+
+
+// Get single order for admin
+const getOrderByIdForAdmin = async (orderId) => {
+    const [rows] = await db.query(
+        `
+        SELECT
+            o.id,
+            o.user_id,
+            u.name AS user_name,
+            u.email,
+            o.full_name,
+            o.phone,
+            o.address,
+            o.city,
+            o.state,
+            o.pincode,
+            o.total_amount,
+            o.status,
+            o.created_at
+        FROM orders o
+        JOIN users u
+            ON o.user_id = u.id
+        WHERE o.id = ?
+        `,
+        [orderId]
+    );
+
+    return rows[0];
 };
 
 
@@ -137,5 +209,6 @@ module.exports = {
     getOrderById,
     getOrderItems,
     getAllOrders,
+    getOrderByIdForAdmin,
     updateOrderStatus
 };

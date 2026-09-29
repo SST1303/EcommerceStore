@@ -7,13 +7,52 @@ const placeOrder = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Get user's cart
-        const cartItems = await cartModel.getCartByUserId(userId);
+        const {
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            pincode,
+            selectedCartItemIds
+        } = req.body;
 
-        // Check if cart is empty
+        // Check delivery address
+        if (
+            !fullName ||
+            !phone ||
+            !address ||
+            !city ||
+            !state ||
+            !pincode
+        ) {
+            return res.status(400).json({
+                message: "All delivery address fields are required"
+            });
+        }
+
+        // Check selected cart items
+        if (
+            !selectedCartItemIds ||
+            !Array.isArray(selectedCartItemIds) ||
+            selectedCartItemIds.length === 0
+        ) {
+            return res.status(400).json({
+                message: "Please select at least one product"
+            });
+        }
+
+        // Get only selected cart items
+        const cartItems =
+            await cartModel.getSelectedCartItems(
+                userId,
+                selectedCartItemIds
+            );
+
+        // Check whether selected items exist
         if (!cartItems || cartItems.length === 0) {
             return res.status(400).json({
-                message: "Cart is empty"
+                message: "Selected products not found in cart"
             });
         }
 
@@ -25,27 +64,43 @@ const placeOrder = async (req, res) => {
         });
 
         // Create order
-        const orderId = await orderModel.createOrder(
-            userId,
-            totalAmount,
-            "PLACED"
-        );
+        const orderId =
+            await orderModel.createOrder(
+                userId,
+                totalAmount,
+                "PLACED",
+                fullName,
+                phone,
+                address,
+                city,
+                state,
+                pincode
+            );
 
-        // Add cart products to order_items
+        // Add selected products to order_items
         for (const item of cartItems) {
+
             await orderModel.addOrderItem(
                 orderId,
                 item.product_id,
                 item.quantity,
                 item.price
             );
+
         }
 
-        // Clear cart after successful order
-        const cart = await cartModel.findCartByUserId(userId);
+        // Get user's cart
+        const cart =
+            await cartModel.findCartByUserId(userId);
 
+        // Remove only selected products from cart
         if (cart) {
-            await cartModel.clearCart(cart.id);
+
+            await cartModel.removeSelectedCartItems(
+                cart.id,
+                selectedCartItemIds
+            );
+
         }
 
         res.status(201).json({
@@ -56,11 +111,16 @@ const placeOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Place order error:", error);
+
+        console.error(
+            "Place order error:",
+            error
+        );
 
         res.status(500).json({
             message: "Internal server error"
         });
+
     }
 };
 
@@ -141,6 +201,38 @@ const getAllOrders = async (req, res) => {
 };
 
 
+// Get Single Order Details - Admin
+const getAdminOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+
+        // Get order
+        const order = await orderModel.getOrderByIdForAdmin(orderId);
+
+        if (!order) {
+            return res.status(404).json({
+                message: "Order not found"
+            });
+        }
+
+        // Get order items
+        const items = await orderModel.getOrderItems(orderId);
+
+        res.status(200).json({
+            order: order,
+            items: items
+        });
+
+    } catch (error) {
+        console.error("Get admin order details error:", error);
+
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
+
+
 // Update Order Status - Admin
 const updateOrderStatus = async (req, res) => {
     try {
@@ -199,5 +291,6 @@ module.exports = {
     getUserOrders,
     getOrderDetails,
     getAllOrders,
+    getAdminOrderDetails,
     updateOrderStatus
 };

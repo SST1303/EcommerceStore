@@ -31,6 +31,12 @@ router.get(
     orderController.getAllOrders
 );
 
+router.get(
+    "/admin/:id",
+    adminMiddleware,
+    orderController.getAdminOrderDetails
+);
+
 router.put(
     "/admin/:id/status",
     adminMiddleware,

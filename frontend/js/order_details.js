@@ -155,6 +155,19 @@ function displayOrderDetails(order, items) {
 
             </div>
 
+            <div class="delivery-address">
+
+                <h2> Delivery Address </h2>
+
+                <p>
+                    <strong>${order.full_name}</strong><br>
+                    ${order.phone}<br>
+                    ${order.address}<br>
+                    ${order.city}, ${order.state} - ${order.pincode}
+                </p>
+
+            </div>
+
             <div class="order-items">
 
                 <h2> Ordered Products </h2>
