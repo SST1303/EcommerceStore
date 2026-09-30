@@ -1,6 +1,11 @@
 const ordersContainer = document.getElementById("ordersContainer");
 const adminToken = localStorage.getItem("token");
 
+// CHECK ADMIN LOGIN
+if (!adminToken) {
+    window.location.href = "../login.html";
+}
+
 // LOAD ALL ORDERS
 async function loadOrders() {
     try {

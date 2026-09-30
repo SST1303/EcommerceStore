@@ -20,6 +20,7 @@
             <a href="index.html">Home</a>
             <a href="cart.html">Cart</a>
             <a href="my_orders.html">Orders</a>
+            <a href="wishlist.html">Wishlist</a>
 
             <a href="admin/dashboard.html" id="adminDashboardLink"> Admin Dashboard </a>
 
@@ -47,12 +48,34 @@
 
             </div>
 
+            <!-- Filter and Sort -->
+            <div class="filter-box">
+
+                <select id="categoryFilter">
+
+                    <option value="all">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Shoes">Shoes</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Books">Books</option>
+
+                </select>
+
+                <select id="sortFilter">
+
+                    <option value="default">Sort By</option>
+                    <option value="priceLowHigh">Price: Low to High </option>
+                    <option value="priceHighLow"> Price: High to Low </option>
+
+                </select>
+
+            </div>
+
 
             <!-- Products -->
             <div id="productsContainer" class="products-container">
-
                 <p>Loading products...</p>
-
             </div>
 
         </section>

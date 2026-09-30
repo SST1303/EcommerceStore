@@ -129,6 +129,22 @@ VALUES
 ('Books');
 
 
+-- =========================
+-- CREATE WISHLIST TABLE
+-- =========================
+
+CREATE TABLE wishlist (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (user_id, product_id),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 SHOW TABLES;
 
 select* from users;

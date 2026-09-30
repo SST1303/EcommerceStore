@@ -1,5 +1,4 @@
 const orderDetailsContainer = document.getElementById("orderDetailsContainer");
-
 const logoutBtn = document.getElementById("logoutBtn");
 
 // CHECK LOGIN
@@ -18,12 +17,7 @@ const orderId = urlParams.get("id");
 
 if (!orderId) {
 
-    orderDetailsContainer.innerHTML =
-        `
-        <p class="message">
-            Order ID not found.
-        </p>
-        `;
+    orderDetailsContainer.innerHTML = ` <p class="message"> Order ID not found. </p> `;
 
 } else {
 
@@ -87,42 +81,65 @@ async function loadOrderDetails() {
 
 function displayOrderDetails(order, items) {
 
+    // Check if order data exists
+    if (!order) {
+        orderDetailsContainer.innerHTML = `
+            <p class="message">
+                Order details not found.
+            </p>
+        `;
+        return;
+    }
+
     let itemsHTML = "";
 
-    items.forEach(
-        function (item) {
+    if (items && items.length > 0) {
+
+        items.forEach(function (item) {
 
             itemsHTML +=
                 `
-                <div class="order-item">
+            <div class="order-item">
 
-                    <div class="order-item-info">
+                <div class="order-item-info">
 
-                        <h3> ${item.name} </h3>
+                    <h3>${item.name}</h3>
 
-                        <p>
-                            Price:
-                            ₹${Number(item.price).toFixed(2)}
-                        </p>
+                    <p> Price: ₹${Number(item.price).toFixed(2)} </p>
 
-                        <p>
-                            Quantity:
-                            ${item.quantity}
-                        </p>
-
-                    </div>
-
-                    <div class="order-item-subtotal">
-
-                        ₹${Number(item.subtotal).toFixed(2)}
-
-                    </div>
+                    <p> Quantity: ${item.quantity} </p>
 
                 </div>
-                `;
-        }
-    );
 
+                <div class="order-item-subtotal">
+                    ₹${Number(item.subtotal).toFixed(2)}
+                </div>
+
+            </div>
+            `;
+        });
+
+    } else {
+
+        itemsHTML = ` <p class="message"> No products found for this order. </p> `;
+    }
+
+    let cancelButtonHTML = "";
+
+    if (
+        order.status === "PLACED" ||
+        order.status === "CONFIRMED"
+    ) {
+        cancelButtonHTML = `
+        <div class="order-actions">
+            <button
+                class="cancel-order-btn"
+                id="cancelOrderBtn">
+                Cancel Order
+            </button>
+        </div>
+    `;
+    }
 
     const orderDate = new Date(order.created_at).toLocaleString();
 
@@ -136,10 +153,7 @@ function displayOrderDetails(order, items) {
 
                     <h2> Order #${order.id} </h2>
 
-                    <p>
-                        Date:
-                        ${orderDate}
-                    </p>
+                    <p> Date: ${orderDate} </p>
 
                 </div>
 
@@ -147,9 +161,7 @@ function displayOrderDetails(order, items) {
                 <div class="order-status">
 
                     Status:
-                    <strong>
-                        ${order.status}
-                    </strong>
+                    <strong> ${order.status} </strong>
 
                 </div>
 
@@ -183,8 +195,59 @@ function displayOrderDetails(order, items) {
 
             </div>
 
+            ${cancelButtonHTML}
+
         </div>
         `;
+
+    const cancelOrderBtn = document.getElementById("cancelOrderBtn");
+
+    if (cancelOrderBtn) {
+
+        cancelOrderBtn.addEventListener("click", cancelOrder);
+    }
+}
+
+async function cancelOrder() {
+
+    const confirmCancel = confirm("Are you sure you want to cancel this order?");
+
+    if (!confirmCancel) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE_URL}/orders/${orderId}/cancel`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            alert(data.message || "Unable to cancel order");
+
+            return;
+        }
+
+        alert("Order cancelled successfully");
+
+        loadOrderDetails();
+
+    } catch (error) {
+
+        console.error("Cancel order error:", error);
+
+        alert("Unable to connect to server");
+    }
 }
 
 

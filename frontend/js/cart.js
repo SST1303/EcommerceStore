@@ -161,7 +161,7 @@ function selectProduct(
         .querySelector("#productClearCartBtn")
         .addEventListener("click", function (event) {
             event.stopPropagation();
-            clearCart();
+            removeCartItem(item.product_id);
         });
 
     // Checkout
@@ -226,6 +226,51 @@ async function clearCart() {
         alert("Unable to connect to server");
     }
 }
+
+
+// ========================= REMOVE SINGLE CART ITEM =========================
+
+async function removeCartItem(productId) {
+    const confirmRemove = confirm(
+        "Are you sure you want to remove this product from cart?"
+    );
+
+    if (!confirmRemove) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/cart/${productId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(
+                data.message || "Unable to remove product"
+            );
+            return;
+        }
+
+        sessionStorage.removeItem("selectedCartItemIds");
+
+        alert("Product removed from cart");
+
+        loadCart();
+
+    } catch (error) {
+        console.error("Remove cart item error:", error);
+        alert("Unable to connect to server");
+    }
+}
+
 
 // ========================= LOGOUT =========================
 

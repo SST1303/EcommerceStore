@@ -292,7 +292,7 @@ async function placeOrder() {
         sessionStorage.removeItem("selectedCartItemIds");
 
         setTimeout(function () {
-            window.location.href = "orders.html";
+            window.location.href = "my_orders.html";
         }, 1500);
 
     } catch (error) {

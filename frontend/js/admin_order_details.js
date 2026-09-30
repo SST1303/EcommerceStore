@@ -61,7 +61,7 @@ async function loadAdminOrderDetails() {
             orderDetailsContainer.innerHTML = `
                 <p class="message">
                     ${data.message ||
-                    "Unable to load order details"}
+                "Unable to load order details"}
                 </p>
             `;
 
@@ -89,35 +89,58 @@ async function loadAdminOrderDetails() {
 
 function displayOrderDetails(order, items) {
 
+    // Check if order data exists
+    if (!order) {
+        orderDetailsContainer.innerHTML = `
+            <p class="message">
+                Order details not found.
+            </p>
+        `;
+        return;
+    }
+
     let itemsHTML = "";
 
-    items.forEach(function (item) {
+    if (items && items.length > 0) {
 
-        itemsHTML += `
-            <div class="order-item">
+        items.forEach(function (item) {
 
-                <div class="order-item-info">
+            itemsHTML += `
+                <div class="order-item">
 
-                    <h3> ${item.name} </h3>
+                    <div class="order-item-info">
 
-                    <p> Price: ₹${Number(item.price).toFixed(2)} </p>
+                        <h3>${item.name}</h3>
 
-                    <p> Quantity: ${item.quantity} </p>
+                        <p>
+                            Price: ₹${Number(item.price).toFixed(2)}
+                        </p>
+
+                        <p>
+                            Quantity: ${item.quantity}
+                        </p>
+
+                    </div>
+
+                    <div class="order-item-subtotal">
+                        ₹${Number(item.subtotal).toFixed(2)}
+                    </div>
 
                 </div>
+            `;
+        });
 
+    } else {
 
-                <div class="order-item-subtotal">
-                    ₹${Number(item.subtotal).toFixed(2)}
-                </div>
-
-            </div>
+        itemsHTML = `
+            <p class="message">
+                No products found for this order.
+            </p>
         `;
+    }
 
-    });
 
-
-    const orderDate = new Date(order.created_at) .toLocaleString();
+    const orderDate = new Date(order.created_at).toLocaleString();
 
     orderDetailsContainer.innerHTML = `
 
