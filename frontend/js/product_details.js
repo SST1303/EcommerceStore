@@ -1,22 +1,19 @@
 const productDetails = document.getElementById("productDetails");
-
 const logoutBtn = document.getElementById("logoutBtn");
 
 // Get product ID from URL
-
 const urlParams = new URLSearchParams(window.location.search);
-
 const productId = urlParams.get("id");
 
-// Check Product ID
+// Wishlist status
+let isProductInWishlist = false;
+
+
+// =================== CHECK PRODUCT ID ===================
 
 if (!productId) {
 
-    productDetails.innerHTML = `
-        <p class="message">
-            Product ID not found
-        </p>
-    `;
+    productDetails.innerHTML = ` <p class="message"> Product ID not found </p> `;
 
 } else {
 
@@ -24,32 +21,23 @@ if (!productId) {
 
 }
 
-// Load Product
+
+// =================== LOAD PRODUCT ===================
 
 async function loadProduct() {
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/products/${productId}`
-        );
+        const response = await fetch(`${API_BASE_URL}/products/${productId}`);
 
         const data = await response.json();
 
-        console.log("Product response:", data);
-
         if (!response.ok) {
 
-            productDetails.innerHTML = `
-                <p class="message">
-                    ${data.message || "Product not found"}
-                </p>
-            `;
+            productDetails.innerHTML = ` <p class="message"> ${data.message || "Product not found"} </p> `;
 
             return;
         }
-
-        // API directly returns product object
 
         const product = data;
 
@@ -68,12 +56,9 @@ async function loadProduct() {
 }
 
 
-// Display Product
+// =================== DISPLAY PRODUCT ===================
 
 function displayProduct(product) {
-
-    console.log("DISPLAY PRODUCT RUNNING");
-    console.log("PRODUCT:", product);
 
     const image =
         product.image_url
@@ -86,27 +71,70 @@ function displayProduct(product) {
 
         <div class="product-details-card">
 
-            <div>
+            <div class="product-image-section">
 
                 <img
                     src="${image}"
                     alt="${product.name}"
                     class="product-details-image"
-                >
+                > 
+
+                <div class="product-image-actions">
+
+                    <button
+                        class="image-action"
+                        id="wishlistBtn"
+                        title="Wishlist"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="details-heart heart-not-added"
+                        >
+
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"
+                            ></path>
+
+                        </svg>
+
+                        <span id="wishlistText"> Wishlist </span>
+
+                    </button>
+
+                    <button
+                        class="image-action"
+                        id="shareBtn"
+                        title="Share Product"
+                    >
+
+                        <span class="share-icon"> ↗ </span>
+
+                        <span> Share </span>
+
+                    </button>
+
+                </div>
 
             </div>
-
 
             <div class="product-details-content">
 
                 <h1> ${product.name} </h1>
 
                 <p class="product-details-description">
-                    ${product.description || "No description available."}
+
+                    ${product.description ||
+                    "No description available."}
+
                 </p>
 
                 <p class="product-details-category">
-                    Category: ${product.category_name || "Not available"}
+
+                    Category:
+                    ${product.category_name ||
+                    "Not available"}
+
                 </p>
 
                 <p class="product-details-price">
@@ -114,7 +142,9 @@ function displayProduct(product) {
                 </p>
 
                 <p class="product-details-stock">
+
                     Stock: ${product.stock}
+
                 </p>
 
                 <div class="quantity-container">
@@ -139,17 +169,12 @@ function displayProduct(product) {
                     id="addCartBtn"
                     ${outOfStock ? "disabled" : ""}
                 >
-                    ${outOfStock
-            ? "Out of Stock"
-            : "Add to Cart"
-        }
-                </button>
 
-                <button
-                    class="wishlist-btn"
-                    id="wishlistBtn"
-                >
-                    ❤️ Add to Wishlist
+                    ${outOfStock
+                            ? "Out of Stock"
+                            : "Add to Cart"
+                    }
+
                 </button>
 
                 <p id="cartMessage"></p>
@@ -162,10 +187,8 @@ function displayProduct(product) {
 
     `;
 
-    console.log("WISHLIST BUTTON:", document.getElementById("wishlistBtn"));
 
-
-    // Add to Cart button
+    // =================== ADD TO CART ===================
 
     if (!outOfStock) {
 
@@ -179,83 +202,105 @@ function displayProduct(product) {
 
                 }
             );
+
     }
 
 
-    // event listener to the wishlist btn
+    // =================== WISHLIST TOGGLE ===================
+
     document
         .getElementById("wishlistBtn")
         .addEventListener(
             "click",
             function () {
-                addToWishlist(product.id);
+
+                toggleWishlist(product.id);
+
             }
         );
+
+
+    document
+        .getElementById("shareBtn")
+        .addEventListener(
+            "click",
+            function () {
+
+                shareProduct(product.name);
+
+            }
+        );
+
+
+    // =================== CHECK WISHLIST STATUS ===================
 
     checkWishlistStatus(product.id);
 
 }
 
 
-
-
-// Add Product to Cart
+// =================== ADD TO CART ===================
 
 async function addToCart(productId) {
 
     const token = localStorage.getItem("token");
 
+    const cartMessage = document.getElementById("cartMessage");
 
     if (!token) {
 
-        document.getElementById("cartMessage").textContent = "Please login first.";
+        cartMessage.textContent = "Please login first.";
 
         return;
     }
 
-    const quantity = Number(document.getElementById("quantity").value);
+    const quantityInput = document.getElementById("quantity");
+
+    const quantity = Number(quantityInput.value);
 
     if (quantity < 1) {
 
-        document.getElementById("cartMessage").textContent = "Quantity must be at least 1.";
+        cartMessage.textContent = "Quantity must be at least 1.";
 
         return;
     }
-
-    const cartMessage = document.getElementById("cartMessage");
 
     cartMessage.textContent = "Adding to cart...";
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/cart`,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                `${API_BASE_URL}/cart`,
+                {
+                    method: "POST",
 
-                headers: {
+                    headers: {
 
-                    "Content-Type":
-                        "application/json",
+                        "Content-Type":
+                            "application/json",
 
-                    "Authorization":
-                        `Bearer ${token}`
-                },
+                        "Authorization":
+                            `Bearer ${token}`
 
-                body: JSON.stringify({
+                    },
 
-                    product_id: productId,
+                    body: JSON.stringify({
 
-                    quantity: quantity
+                        product_id: productId,
 
-                })
-            }
-        );
+                        quantity: quantity
+
+                    })
+                }
+            );
 
         const data = await response.json();
 
         if (!response.ok) {
+
             cartMessage.textContent = data.message || "Unable to add to cart";
+
             return;
         }
 
@@ -270,115 +315,301 @@ async function addToCart(productId) {
 }
 
 
-//add function for wishlist 
-async function addToWishlist(productId) {
+// =================== WISHLIST TOGGLE ===================
+
+async function toggleWishlist(productId) {
 
     const token = localStorage.getItem("token");
 
     const wishlistMessage = document.getElementById("wishlistMessage");
 
+    const wishlistText = document.getElementById("wishlistText");
+
+    const heart = document.querySelector(".details-heart");
+
     if (!token) {
-        wishlistMessage.textContent = "Please login first.";
+
+        if (wishlistMessage) {
+
+            wishlistMessage.textContent = "Please login first to use wishlist.";
+
+        }
+
         return;
     }
 
-    wishlistMessage.textContent = "Adding to wishlist...";
-
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/wishlist`,
-            {
-                method: "POST",
+        if (isProductInWishlist) {
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/wishlist/${productId}`,
+                    {
+                        method: "DELETE",
 
-                body: JSON.stringify({
-                    product_id: productId
-                })
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${token}`
+
+                        }
+                    }
+                );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                if (wishlistMessage) {
+
+                    wishlistMessage.textContent = data.message || "Unable to remove from wishlist";
+
+                }
+
+                return;
             }
-        );
 
-        const data = await response.json();
+            isProductInWishlist = false;
 
-        if (!response.ok) {
+            if (heart) {
 
-            wishlistMessage.textContent = data.message || "Unable to add product to wishlist";
+                heart.classList.remove("heart-added");
 
-            return;
+                heart.classList.add("heart-not-added");
+
+            }
+
+            if (wishlistText) {
+                wishlistText.textContent = "Wishlist";
+            }
+
+            if (wishlistMessage) {
+                wishlistMessage.textContent = "";
+            }
+
         }
 
-        wishlistMessage.textContent = "❤️ Product added to wishlist!";
+        else {
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/wishlist`,
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                `Bearer ${token}`
+
+                        },
+
+                        body: JSON.stringify({
+
+                            product_id: productId
+
+                        })
+                    }
+                );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                if (wishlistMessage) {
+
+                    wishlistMessage.textContent = data.message || "Unable to add product to wishlist";
+
+                }
+
+                return;
+            }
+
+            isProductInWishlist = true;
+
+            if (heart) {
+
+                heart.classList.remove("heart-not-added");
+
+                heart.classList.add("heart-added");
+
+            }
+
+            if (wishlistText) {
+                wishlistText.textContent = "Wishlist";
+            }
+
+            if (wishlistMessage) {
+                wishlistMessage.textContent = "";
+            }
+
+        }
 
     } catch (error) {
 
-        console.error("Add to wishlist error:", error);
+        console.error("Wishlist error:", error);
 
-        wishlistMessage.textContent = "Unable to connect to server";
+        if (wishlistMessage) {
+
+            wishlistMessage.textContent = "Unable to connect to server";
+
+        }
     }
 }
 
+
+// =================== CHECK WISHLIST STATUS ===================
 
 async function checkWishlistStatus(productId) {
 
     const token = localStorage.getItem("token");
 
     if (!token) {
+
         return;
+
     }
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/wishlist`,
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
+        const response =
+            await fetch(
+                `${API_BASE_URL}/wishlist`,
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
                 }
-            }
-        );
+            );
 
         const data = await response.json();
 
         if (!response.ok) {
+
             return;
+
         }
 
         const wishlist = data.wishlist || [];
 
-        const productExists = wishlist.some(
-            function (item) {
-                return Number(item.product_id) === Number(productId);
+        isProductInWishlist =
+            wishlist.some(
+                function (item) {
+
+                    return (Number(item.product_id) === Number(productId));
+
+                }
+            );
+
+        const heart = document.querySelector(".details-heart");
+
+        const wishlistText = document.getElementById("wishlistText");
+
+        if (isProductInWishlist) {
+
+            if (heart) {
+
+                heart.classList.remove("heart-not-added");
+
+                heart.classList.add("heart-added");
+
             }
-        );
 
-        const wishlistBtn = document.getElementById("wishlistBtn");
+            if (wishlistText) {
 
-        if (!wishlistBtn) {
-            return;
+                wishlistText.textContent = "Wishlist";
+
+            }
+
         }
 
-        if (productExists) {
+        else {
 
-            wishlistBtn.textContent = "❤️ Added to Wishlist";
+            if (heart) {
 
-            wishlistBtn.disabled = true;
+                heart.classList.remove("heart-added");
+
+                heart.classList.add("heart-not-added");
+
+            }
+
+            if (wishlistText) {
+
+                wishlistText.textContent = "Wishlist";
+
+            }
+
         }
 
     } catch (error) {
 
-        console.error(
-            "Check wishlist status error:",
-            error
-        );
+        console.error("Check wishlist status error:", error);
     }
 }
 
-// Logout
+
+// =================== SHARE PRODUCT ===================
+
+function shareProduct(productName) {
+
+    const shareData = {
+
+        title: productName,
+
+        text: `Check out this product: ${productName}`,
+
+        url: window.location.href
+
+    };
+
+    if (navigator.share) {
+
+        navigator
+            .share(shareData)
+            .catch(
+                function (error) {
+
+                    console.log("Share canceled", error);
+
+                }
+            );
+
+    }
+
+    else {
+
+        navigator
+            .clipboard
+            .writeText(window.location.href)
+            .then(
+                function () {
+
+                    alert("Product link copied to clipboard!");
+
+                }
+            )
+            .catch(
+                function () {
+
+                    alert("Failed to copy link.");
+
+                }
+            );
+
+    }
+}
+
+
+// =================== LOGOUT ===================
 
 if (logoutBtn) {
 
@@ -388,8 +619,9 @@ if (logoutBtn) {
 
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-
             window.location.href = "login.html";
+
         }
     );
 }
+

@@ -108,7 +108,7 @@ async function loadProducts() {
           OR
           { products: [...] }
         */
-       
+
         if (Array.isArray(data)) {
             allProducts = data;
         } else {
@@ -149,7 +149,10 @@ function displayProducts(products) {
             : "images/products/default.jpg";
 
         card.innerHTML = `
-            <div class="product-image-container">
+            <div 
+                class="product-image-container"
+                onclick="viewProduct(${product.id})"
+            >
                 <img
                     src="${image}"
                     alt="${product.name}"
@@ -170,6 +173,7 @@ function displayProducts(products) {
                     </svg>
                 </button>
             </div>
+
             <div class="product-content">
                 <h3>${product.name}</h3>
                 <p class="product-description">
@@ -181,12 +185,7 @@ function displayProducts(products) {
                 <p class="product-stock">
                     Stock: ${product.stock}
                 </p>
-                <button
-                    class="view-details-btn"
-                    onclick="viewProduct(${product.id})"
-                >
-                    View Details
-                </button>
+               
             </div>
         `;
 
