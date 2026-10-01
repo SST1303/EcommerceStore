@@ -67,6 +67,10 @@ function displayCart(cartItems) {
     cartItems.forEach(function (item) {
         const subtotal = Number(item.subtotal);
 
+        const image = item.image_url
+            ? `images/products/${item.image_url}`
+            : "images/products/default.jpg";
+
         // Wrapper for product + buttons
         const productWrapper = document.createElement("div");
         productWrapper.className = "cart-product-wrapper";
@@ -76,6 +80,12 @@ function displayCart(cartItems) {
         cartItem.className = "cart-item";
 
         cartItem.innerHTML = `
+            <img
+                src="${image}"
+                alt="${item.name}"
+                class="cart-item-image"
+            >
+
             <div class="cart-item-info">
                 <h3>
                     ${item.name}
@@ -83,15 +93,66 @@ function displayCart(cartItems) {
                 <p>
                     Price: ₹${Number(item.price).toFixed(2)}
                 </p>
-                <p>
-                    Quantity: ${item.quantity}
-                </p>
+
+                <div class="cart-quantity">
+                    <span>Quantity:</span>
+
+                    <button 
+                        class="quantity-btn decrease-btn"
+                        type="button"
+                    >
+                        -
+                    </button>
+
+                    <span class="quantity-value">
+                        ${item.quantity}
+                    </span>
+
+                    <button 
+                        class="quantity-btn increase-btn"
+                        type="button"
+                    >
+                        +
+                    </button>
+                </div>
             </div>
 
             <div class="cart-item-price">
                 ₹${subtotal.toFixed(2)}
             </div>
         `;
+
+        // Quantity decrease button
+        cartItem
+            .querySelector(".decrease-btn")
+            .addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const currentQuantity = Number(item.quantity);
+
+                if (currentQuantity <= 1) {
+                    return;
+                }
+
+                updateCartQuantity(
+                    item.product_id,
+                    currentQuantity - 1
+                );
+            });
+
+        // Quantity increase button
+        cartItem
+            .querySelector(".increase-btn")
+            .addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const currentQuantity = Number(item.quantity);
+
+                updateCartQuantity(
+                    item.product_id,
+                    currentQuantity + 1
+                );
+            });
 
         // Click product card
         cartItem.addEventListener("click", function () {
@@ -108,6 +169,42 @@ function displayCart(cartItems) {
         // Add wrapper to cart
         cartContainer.appendChild(productWrapper);
     });
+}
+
+// ========================= UPDATE CART QUANTITY =========================
+
+async function updateCartQuantity(productId, quantity) {
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/cart/${productId}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    quantity: quantity
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(
+                data.message || "Unable to update cart quantity"
+            );
+            return;
+        }
+
+        loadCart();
+
+    } catch (error) {
+        console.error("Update cart quantity error:", error);
+
+        alert("Unable to connect to server");
+    }
 }
 
 // ========================= SELECT PRODUCT =========================
@@ -152,8 +249,7 @@ function selectProduct(
     `;
 
     // IMPORTANT:
-    // Buttons are added AFTER the card,
-    // not inside the card.
+    // Buttons are added AFTER the card, not inside the card.
     productWrapper.appendChild(productActions);
 
     // Clear Cart
@@ -208,9 +304,7 @@ async function clearCart() {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(
-                data.message || "Unable to clear cart"
-            );
+            alert(data.message || "Unable to clear cart");
             return;
         }
 
@@ -231,9 +325,7 @@ async function clearCart() {
 // ========================= REMOVE SINGLE CART ITEM =========================
 
 async function removeCartItem(productId) {
-    const confirmRemove = confirm(
-        "Are you sure you want to remove this product from cart?"
-    );
+    const confirmRemove = confirm("Are you sure you want to remove this product from cart?");
 
     if (!confirmRemove) {
         return;
@@ -253,9 +345,7 @@ async function removeCartItem(productId) {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(
-                data.message || "Unable to remove product"
-            );
+            alert(data.message || "Unable to remove product");
             return;
         }
 

@@ -1,0 +1,38 @@
+/* CART QUANTITY  */
+
+.cart-quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 4px;
+}
+
+.quantity-btn:hover {
+    background: #f2f2f2;
+}
+
+.quantity-value {
+    min-width: 25px;
+    text-align: center;
+    font-weight: bold;
+}
+
+
+/*  CART IMAGE  */
+
+.cart-item-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 8px;
+}

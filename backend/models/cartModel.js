@@ -63,6 +63,17 @@ const findCartItem = async (cartId, productId) => {
 };
 
 
+// Get product stock
+const getProductStock = async (productId) => {
+    const [rows] = await db.query(
+        "SELECT stock FROM products WHERE id = ?",
+        [productId]
+    );
+
+    return rows[0];
+};
+
+
 // Add product to cart
 const addCartItem = async (cartId, productId, quantity) => {
     const [result] = await db.query(
@@ -179,6 +190,7 @@ module.exports = {
     findCartByUserId,
     createCart,
     findCartItem,
+    getProductStock,
     addCartItem,
     updateCartItem,
     removeCartItem,

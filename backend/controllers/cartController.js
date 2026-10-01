@@ -125,6 +125,22 @@ const updateCart = async (req, res) => {
             });
         }
 
+         // Check product stock
+        const product = await cartModel.getProductStock(productId);
+
+        if (!product) {
+            return res.status(404).json({
+                message: "Product not found"
+            });
+        }
+
+        // Check requested quantity against available stock
+        if (quantity > product.stock) {
+            return res.status(400).json({
+                message: `Only ${product.stock} items available in stock`
+            });
+        }
+
         await cartModel.updateCartItem(
             cart.id,
             productId,
