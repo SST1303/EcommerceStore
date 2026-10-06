@@ -87,14 +87,9 @@ function displayProduct(product) {
                         title="Wishlist"
                     >
 
-                        <svg
-                            viewBox="0 0 24 24"
-                            class="details-heart heart-not-added"
-                        >
+                        <svg viewBox="0 0 24 24" class="details-heart heart-not-added">
 
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"
-                            ></path>
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
 
                         </svg>
 
@@ -124,16 +119,14 @@ function displayProduct(product) {
 
                 <p class="product-details-description">
 
-                    ${product.description ||
-                    "No description available."}
+                    ${product.description || "No description available."}
 
                 </p>
 
                 <p class="product-details-category">
 
                     Category:
-                    ${product.category_name ||
-                    "Not available"}
+                    ${product.category_name || "Not available"}
 
                 </p>
 
@@ -141,7 +134,7 @@ function displayProduct(product) {
                     ₹${Number(product.price).toFixed(2)}
                 </p>
 
-                <p class="product-details-stock">
+                <p class="product-details-stock" id="productStock">
 
                     Stock: ${product.stock}
 
@@ -149,9 +142,7 @@ function displayProduct(product) {
 
                 <div class="quantity-container">
 
-                    <label for="quantity">
-                        Quantity
-                    </label>
+                    <label for="quantity"> Quantity </label>
 
                     <input
                         type="number"
@@ -164,18 +155,25 @@ function displayProduct(product) {
 
                 </div>
 
-                <button
-                    class="add-cart-btn"
-                    id="addCartBtn"
-                    ${outOfStock ? "disabled" : ""}
-                >
+                <div class="product-action-buttons">
 
-                    ${outOfStock
-                            ? "Out of Stock"
-                            : "Add to Cart"
-                    }
+                    <button 
+                        class="add-cart-btn" 
+                        id="addCartBtn" 
+                        ${outOfStock ? "disabled" : ""} 
+                    > 
+                        ${outOfStock ? "Out of Stock" : "Add to Cart"} 
+                    </button> 
 
-                </button>
+                    <button 
+                        class="buy-now-btn" 
+                        id="buyNowBtn" 
+                        ${outOfStock ? "disabled" : ""} 
+                    > 
+                        ${outOfStock ? "Out of Stock" : "Buy Now"} 
+                    </button>
+
+                </div>
 
                 <p id="cartMessage"></p>
 
@@ -199,6 +197,24 @@ function displayProduct(product) {
                 function () {
 
                     addToCart(product.id);
+
+                }
+            );
+
+    }
+
+
+    // =================== BUY NOW ===================
+
+    if (!outOfStock) {
+
+        document
+            .getElementById("buyNowBtn")
+            .addEventListener(
+                "click",
+                function () {
+
+                    buyNow(product.id);
 
                 }
             );
@@ -232,14 +248,72 @@ function displayProduct(product) {
         );
 
 
-    // =================== CHECK WISHLIST STATUS ===================
-
+    // CHECK WISHLIST STATUS 
     checkWishlistStatus(product.id);
 
 }
 
+// =================== REFRESH STOCK =================== 
+async function refreshProductStock() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+        const product = await response.json();
 
-// =================== ADD TO CART ===================
+        if (!response.ok) {
+            return;
+        }
+
+        const stock = Number(product.stock);
+
+        const stockElement = document.getElementById("productStock");
+        const quantityInput = document.getElementById("quantity");
+        const addCartBtn = document.getElementById("addCartBtn");
+        const buyNowBtn = document.getElementById("buyNowBtn");
+
+        if (!stockElement || !quantityInput || !addCartBtn || !buyNowBtn) {
+            return;
+        }
+
+        // Update stock text  
+        stockElement.textContent = `Stock: ${stock}`;
+
+        // Update maximum quantity  
+        quantityInput.max = stock;
+
+        // Product is out of stock  
+        if (stock <= 0) {
+            quantityInput.value = 1;
+            quantityInput.disabled = true;
+            addCartBtn.disabled = true;
+            buyNowBtn.disabled = true;
+            addCartBtn.textContent = "Out of Stock";
+            buyNowBtn.textContent = "Out of Stock";
+        }
+
+        // Product is available  
+        else {
+            quantityInput.disabled = false;
+            addCartBtn.disabled = false;
+            buyNowBtn.disabled = false;
+            addCartBtn.textContent = "Add to Cart";
+            buyNowBtn.textContent = "Buy Now";
+
+            if (Number(quantityInput.value) > stock) {
+                quantityInput.value = stock;
+            }
+        }
+    } catch (error) {
+        console.error("Refresh product stock error:", error);
+    }
+}
+
+//  AUTO REFRESH STOCK  
+if (productId) {
+    setInterval(refreshProductStock, 5000);
+}
+
+
+// =================== ADD TO CART Function ===================
 
 async function addToCart(productId) {
 
@@ -309,6 +383,77 @@ async function addToCart(productId) {
     } catch (error) {
 
         console.error("Add to cart error:", error);
+
+        cartMessage.textContent = "Unable to connect to server";
+    }
+}
+
+// =================== BUY NOW Function ===================
+
+async function buyNow(productId) {
+
+    const token = localStorage.getItem("token");
+
+    const cartMessage = document.getElementById("cartMessage");
+
+    if (!token) {
+
+        cartMessage.textContent = "Please login first.";
+
+        return;
+    }
+
+    const quantityInput = document.getElementById("quantity");
+
+    const quantity = Number(quantityInput.value);
+
+    if (quantity < 1) {
+
+        cartMessage.textContent = "Quantity must be at least 1.";
+
+        return;
+    }
+
+    cartMessage.textContent = "Processing...";
+
+    try {
+
+        const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+
+        const product = await response.json();
+
+        if (!response.ok) {
+
+            cartMessage.textContent = product.message || "Unable to process Buy Now";
+
+            return;
+        }
+
+        if (Number(product.stock) < quantity) {
+
+            cartMessage.textContent = `Only ${product.stock} items available in stock`;
+
+            return;
+        }
+
+        // Store Buy Now product details
+        sessionStorage.setItem(
+            "buyNowData",
+            JSON.stringify({
+                productId: Number(productId),
+                quantity: quantity
+            })
+        );
+
+        // Remove previous cart checkout selection
+        sessionStorage.removeItem("selectedCartItemIds");
+
+        // Go directly to checkout
+        window.location.href = "checkout.html";
+
+    } catch (error) {
+
+        console.error("Buy Now error:", error);
 
         cartMessage.textContent = "Unable to connect to server";
     }

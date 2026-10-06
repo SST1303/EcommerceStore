@@ -184,6 +184,26 @@ const removeSelectedCartItems = async (cartId, cartItemIds) => {
     return result;
 };
 
+// Remove selected cart items using transaction connection
+const removeSelectedCartItemsWithConnection = async (
+    connection,
+    cartId,
+    selectedCartItemIds
+) => {
+    const placeholders = selectedCartItemIds.map(() => "?").join(",");
+
+    const [result] = await connection.query(
+        `
+        DELETE FROM cart_items
+        WHERE cart_id = ?
+        AND id IN (${placeholders})
+        `,
+        [cartId, ...selectedCartItemIds]
+    );
+
+    return result;
+};
+
 
 module.exports = {
     getCartByUserId,
@@ -196,5 +216,6 @@ module.exports = {
     removeCartItem,
     clearCart,
     getSelectedCartItems,
-    removeSelectedCartItems
+    removeSelectedCartItems,
+    removeSelectedCartItemsWithConnection
 };

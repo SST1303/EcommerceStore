@@ -14,6 +14,81 @@ if (!token) {
 
 async function loadCheckout() {
     try {
+
+        // Check Buy Now data
+        const storedBuyNowData = sessionStorage.getItem("buyNowData");
+
+        // ========================= BUY NOW CHECKOUT =========================
+
+        if (storedBuyNowData) {
+
+            const buyNowData = JSON.parse(storedBuyNowData);
+
+            if (
+                !buyNowData ||
+                !buyNowData.productId ||
+                !buyNowData.quantity
+            ) {
+                checkoutContainer.innerHTML = `
+                    <p class="message">
+                        Invalid Buy Now data.
+                    </p>
+                    <p class="message">
+                        <a href="cart.html">
+                            Go back to Cart
+                        </a>
+                    </p>
+                `;
+                return;
+            }
+
+            // Get product details
+            const response = await fetch(
+                `${API_BASE_URL}/products/${buyNowData.productId}`
+            );
+
+            const product = await response.json();
+
+            if (!response.ok) {
+                checkoutContainer.innerHTML = `
+                    <p class="message">
+                        ${product.message || "Unable to load product"}
+                    </p>
+                `;
+                return;
+            }
+
+            // Check current stock
+            if (Number(product.stock) < Number(buyNowData.quantity)) {
+                checkoutContainer.innerHTML = `
+                    <p class="message">
+                        Only ${product.stock} items available in stock.
+                    </p>
+                    <p class="message">
+                        <a href="product-details.html?id=${product.id}">
+                            Go back to Product
+                        </a>
+                    </p>
+                `;
+                return;
+            }
+
+            // Create Buy Now item
+            const buyNowItem = {
+                product_id: product.id,
+                name: product.name,
+                price: product.price,
+                quantity: Number(buyNowData.quantity),
+                subtotal: Number(product.price) * Number(buyNowData.quantity)
+            };
+
+            displayCheckout([buyNowItem]);
+
+            return;
+        }
+
+        // ========================= CART CHECKOUT =========================
+
         // Get selected cart item IDs
         const storedSelectedIds = sessionStorage.getItem("selectedCartItemIds");
 
@@ -48,12 +123,13 @@ async function loadCheckout() {
         }
 
         // Get user's cart
-        const response = await fetch(`${API_BASE_URL}/cart`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
+        const response = await fetch(
+            `${API_BASE_URL}/cart`,
+            {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}`}
             }
-        });
+        );
 
         const data = await response.json();
 
@@ -70,8 +146,10 @@ async function loadCheckout() {
 
         // Filter only selected products
         const selectedItems = cartItems.filter(function (item) {
-            return selectedCartItemIds.includes(Number(item.cart_item_id));
-        });
+
+                return selectedCartItemIds.includes(Number(item.cart_item_id));
+
+            });
 
         if (selectedItems.length === 0) {
             checkoutContainer.innerHTML = `
@@ -90,7 +168,9 @@ async function loadCheckout() {
         displayCheckout(selectedItems);
 
     } catch (error) {
+
         console.error("Checkout error:", error);
+
         checkoutContainer.innerHTML = `
             <p class="message">
                 Unable to connect to server
@@ -102,9 +182,11 @@ async function loadCheckout() {
 // ========================= DISPLAY CHECKOUT =========================
 
 function displayCheckout(cartItems) {
+
     checkoutContainer.innerHTML = "";
 
     if (!cartItems || cartItems.length === 0) {
+
         checkoutContainer.innerHTML = `
             <p class="message">
                 No products selected.
@@ -115,6 +197,7 @@ function displayCheckout(cartItems) {
                 </a>
             </p>
         `;
+
         return;
     }
 
@@ -122,31 +205,39 @@ function displayCheckout(cartItems) {
     let itemsHTML = "";
 
     cartItems.forEach(function (item) {
+
         const subtotal = Number(item.subtotal);
+
         totalAmount += subtotal;
 
         itemsHTML += `
             <div class="checkout-item">
+
                 <div>
+
                     <p class="checkout-item-name">
                         ${item.name}
                     </p>
+
                     <p class="checkout-item-details">
                         ₹${Number(item.price).toFixed(2)} × ${item.quantity}
                     </p>
+
                 </div>
+
                 <p class="checkout-item-price">
                     ₹${subtotal.toFixed(2)}
                 </p>
+
             </div>
         `;
     });
 
     checkoutContainer.innerHTML = `
         <div class="checkout-card">
-            <h2>
-                Selected Products
-            </h2>
+
+            <h2> Selected Products </h2>
+
             ${itemsHTML}
 
             <div class="checkout-total">
@@ -154,97 +245,134 @@ function displayCheckout(cartItems) {
             </div>
 
             <!-- DELIVERY ADDRESS -->
+
             <div class="address-section">
-                <h2>
-                    Delivery Address
-                </h2>
+
+                <h2> Delivery Address </h2>
 
                 <div class="form-group">
-                    <label for="fullName">
-                        Full Name
-                    </label>
-                    <input type="text" id="fullName" placeholder="Enter full name">
+
+                    <label for="fullName"> Full Name </label>
+
+                    <input
+                        type="text"
+                        id="fullName"
+                        placeholder="Enter full name"
+                    >
+
                 </div>
 
                 <div class="form-group">
-                    <label for="phone">
-                        Phone Number
-                    </label>
-                    <input type="text" id="phone" placeholder="Enter phone number">
+
+                    <label for="phone"> Phone Number </label>
+
+                    <input
+                        type="text"
+                        id="phone"
+                        placeholder="Enter phone number"
+                    >
+
                 </div>
 
                 <div class="form-group">
-                    <label for="address">
-                        Address
-                    </label>
-                    <textarea id="address" placeholder="House No., Street, Area"></textarea>
+
+                    <label for="address"> Address </label>
+
+                    <textarea
+                        id="address"
+                        placeholder="House No., Street, Area"
+                    ></textarea>
+
                 </div>
 
                 <div class="form-group">
-                    <label for="city">
-                        City
-                    </label>
-                    <input type="text" id="city" placeholder="Enter city">
+
+                    <label for="city"> City </label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        placeholder="Enter city"
+                    >
+
                 </div>
 
                 <div class="form-group">
-                    <label for="state">
-                        State
-                    </label>
-                    <input type="text" id="state" placeholder="Enter state">
+
+                    <label for="state"> State </label>
+
+                    <input
+                        type="text"
+                        id="state"
+                        placeholder="Enter state"
+                    >
+
                 </div>
 
                 <div class="form-group">
-                    <label for="pincode">
-                        Pincode
-                    </label>
-                    <input type="text" id="pincode" placeholder="Enter pincode">
+
+                    <label for="pincode"> Pincode </label>
+
+                    <input
+                        type="text"
+                        id="pincode"
+                        placeholder="Enter pincode"
+                    >
+
                 </div>
+
             </div>
 
-            <button id="placeOrderBtn" class="place-order-btn">
+            <button
+                id="placeOrderBtn"
+                class="place-order-btn"
+            >
                 Place Order
             </button>
 
             <p id="orderMessage"></p>
+
         </div>
     `;
 
-    document.getElementById("placeOrderBtn").addEventListener("click", placeOrder);
+    document
+        .getElementById("placeOrderBtn")
+        .addEventListener("click", placeOrder);
 }
 
 // ========================= PLACE ORDER =========================
 
 async function placeOrder() {
+
     const placeOrderBtn = document.getElementById("placeOrderBtn");
+
     const orderMessage = document.getElementById("orderMessage");
-
-    // Get selected cart item IDs
-    const storedSelectedIds = sessionStorage.getItem("selectedCartItemIds");
-
-    if (!storedSelectedIds) {
-        orderMessage.textContent = "No products selected.";
-        return;
-    }
-
-    const selectedCartItemIds = JSON.parse(storedSelectedIds);
-
-    if (!Array.isArray(selectedCartItemIds) || selectedCartItemIds.length === 0) {
-        orderMessage.textContent = "No products selected.";
-        return;
-    }
 
     // Get address values
     const fullName = document.getElementById("fullName").value.trim();
+
     const phone = document.getElementById("phone").value.trim();
+
     const address = document.getElementById("address").value.trim();
+
     const city = document.getElementById("city").value.trim();
+
     const state = document.getElementById("state").value.trim();
+
     const pincode = document.getElementById("pincode").value.trim();
 
     // Validate address
-    if (!fullName || !phone || !address || !city || !state || !pincode) {
+    if (
+        !fullName ||
+        !phone ||
+        !address ||
+        !city ||
+        !state ||
+        !pincode
+    ) {
+
         orderMessage.textContent = "Please fill all delivery address fields.";
+
         return;
     }
 
@@ -255,50 +383,173 @@ async function placeOrder() {
     }
 
     placeOrderBtn.disabled = true;
+
     placeOrderBtn.textContent = "Placing Order...";
+
     orderMessage.textContent = "";
 
     try {
-        const response = await fetch(`${API_BASE_URL}/orders/place`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                fullName: fullName,
-                phone: phone,
-                address: address,
-                city: city,
-                state: state,
-                pincode: pincode,
-                selectedCartItemIds: selectedCartItemIds
-            })
-        });
+
+        // ========================= BUY NOW ORDER =========================
+
+        const storedBuyNowData = sessionStorage.getItem("buyNowData");
+
+        if (storedBuyNowData) {
+
+            const buyNowData = JSON.parse(storedBuyNowData);
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/orders/buy-now`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            productId: buyNowData.productId,
+
+                            quantity: buyNowData.quantity,
+
+                            fullName: fullName,
+
+                            phone: phone,
+
+                            address: address,
+
+                            city: city,
+
+                            state: state,
+
+                            pincode: pincode
+                        })
+                    }
+                );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                orderMessage.textContent = data.message || "Unable to place order";
+
+                placeOrderBtn.disabled = false;
+
+                placeOrderBtn.textContent = "Place Order";
+
+                return;
+            }
+
+            // Buy Now order successful
+            orderMessage.textContent = "Order placed successfully!";
+
+            // Clear Buy Now data
+            sessionStorage.removeItem("buyNowData");
+
+            setTimeout(function () {
+
+                window.location.href = "my_orders.html";
+
+            }, 1500);
+
+            return;
+        }
+
+        // ========================= CART ORDER =========================
+
+        const storedSelectedIds = sessionStorage.getItem("selectedCartItemIds");
+
+        if (!storedSelectedIds) {
+
+            orderMessage.textContent = "No products selected.";
+
+            placeOrderBtn.disabled = false;
+
+            placeOrderBtn.textContent = "Place Order";
+
+            return;
+        }
+
+        const selectedCartItemIds = JSON.parse(storedSelectedIds);
+
+        if (!Array.isArray(selectedCartItemIds) || selectedCartItemIds.length === 0) {
+
+            orderMessage.textContent = "No products selected.";
+
+            placeOrderBtn.disabled = false;
+
+            placeOrderBtn.textContent = "Place Order";
+
+            return;
+        }
+
+        const response = await fetch(
+                `${API_BASE_URL}/orders/place`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        fullName: fullName,
+
+                        phone: phone,
+
+                        address: address,
+
+                        city: city,
+
+                        state: state,
+
+                        pincode: pincode,
+
+                        selectedCartItemIds: selectedCartItemIds
+                    })
+                }
+            );
 
         const data = await response.json();
 
         if (!response.ok) {
+
             orderMessage.textContent = data.message || "Unable to place order";
+
             placeOrderBtn.disabled = false;
+
             placeOrderBtn.textContent = "Place Order";
+
             return;
         }
 
-        // Order successful
+        // Cart order successful
         orderMessage.textContent = "Order placed successfully!";
 
         // Clear selected items from session
         sessionStorage.removeItem("selectedCartItemIds");
 
         setTimeout(function () {
+
             window.location.href = "my_orders.html";
+
         }, 1500);
 
     } catch (error) {
+
         console.error("Place order error:", error);
+
         orderMessage.textContent = "Unable to connect to server";
+
         placeOrderBtn.disabled = false;
+
         placeOrderBtn.textContent = "Place Order";
     }
 }
@@ -306,10 +557,21 @@ async function placeOrder() {
 // ========================= LOGOUT =========================
 
 if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("selectedCartItemIds");
-        window.location.href = "login.html";
-    });
+
+    logoutBtn.addEventListener(
+        "click",
+        function () {
+
+            localStorage.removeItem("token");
+
+            localStorage.removeItem("user");
+
+            sessionStorage.removeItem("selectedCartItemIds");
+
+            sessionStorage.removeItem("buyNowData");
+
+            window.location.href = "login.html";
+
+        }
+    );
 }

@@ -1,9 +1,12 @@
+const db = require("../config/db");
 const orderModel = require("../models/orderModel");
 const cartModel = require("../models/cartModel");
 
 
 // Place Order
 const placeOrder = async (req, res) => {
+    let connection;
+
     try {
         const userId = req.user.id;
 
@@ -43,17 +46,25 @@ const placeOrder = async (req, res) => {
         }
 
         // Get only selected cart items
-        const cartItems =
-            await cartModel.getSelectedCartItems(
-                userId,
-                selectedCartItemIds
-            );
+        const cartItems = await cartModel.getSelectedCartItems(userId, selectedCartItemIds);
 
         // Check whether selected items exist
         if (!cartItems || cartItems.length === 0) {
             return res.status(400).json({
                 message: "Selected products not found in cart"
             });
+        }
+
+        // Check product stock
+        for (const item of cartItems) {
+
+            const stockResult = await cartModel.getProductStock(item.product_id);
+
+            if (!stockResult || stockResult.stock < item.quantity) {
+                return res.status(400).json({
+                    message: `Insufficient stock for ${item.name}`
+                });
+            }
         }
 
         // Calculate total amount
@@ -63,9 +74,16 @@ const placeOrder = async (req, res) => {
             totalAmount += Number(item.subtotal);
         });
 
+        // Get database connection 
+        connection = await db.getConnection();
+
+        // Start transaction 
+        await connection.beginTransaction();
+
         // Create order
         const orderId =
-            await orderModel.createOrder(
+            await orderModel.createOrderWithConnection(
+                connection,
                 userId,
                 totalAmount,
                 "PLACED",
@@ -80,28 +98,42 @@ const placeOrder = async (req, res) => {
         // Add selected products to order_items
         for (const item of cartItems) {
 
-            await orderModel.addOrderItem(
+            await orderModel.addOrderItemWithConnection(
+                connection,
                 orderId,
                 item.product_id,
                 item.quantity,
                 item.price
             );
 
+            const stockResult = await orderModel.updateProductStockWithConnection(
+                connection,
+                item.product_id,
+                item.quantity
+            );
+
+            if (stockResult.affectedRows === 0) {
+                throw new Error( `Insufficient stock for ${item.name}` );
+            }
+
         }
 
         // Get user's cart
-        const cart =
-            await cartModel.findCartByUserId(userId);
+        const cart = await cartModel.findCartByUserId(userId);
 
         // Remove only selected products from cart
         if (cart) {
 
-            await cartModel.removeSelectedCartItems(
+            await cartModel.removeSelectedCartItemsWithConnection(
+                connection,
                 cart.id,
                 selectedCartItemIds
             );
 
         }
+
+        // Commit transaction
+        await connection.commit();
 
         res.status(201).json({
             message: "Order placed successfully",
@@ -112,18 +144,174 @@ const placeOrder = async (req, res) => {
 
     } catch (error) {
 
-        console.error(
-            "Place order error:",
-            error
-        );
+        // Rollback transaction if error occurs 
+        if (connection) { 
+            await connection.rollback();
+        }
 
-        res.status(500).json({
-            message: "Internal server error"
-        });
+        console.error("Place order error:", error);
+
+        res.status(500).json({ 
+            message: "Unable to place order" 
+        }); 
+    } finally { 
+        // Release database connection 
+        if (connection) { 
+            connection.release();
+        }
 
     }
 };
 
+
+// Buy Now Order
+const buyNowOrder = async (req, res) => {
+    let connection;
+
+    try {
+        const userId = req.user.id;
+
+        const {
+            productId,
+            quantity,
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            pincode
+        } = req.body;
+
+        // Check delivery address
+        if (
+            !fullName ||
+            !phone ||
+            !address ||
+            !city ||
+            !state ||
+            !pincode
+        ) {
+            return res.status(400).json({
+                message: "All delivery address fields are required"
+            });
+        }
+
+        // Check product and quantity
+        if (!productId || !quantity || quantity <= 0) {
+            return res.status(400).json({
+                message: "Product and valid quantity are required"
+            });
+        }
+
+        // Get product
+        const [products] = await db.query(
+            `
+            SELECT
+                id,
+                name,
+                price,
+                stock
+            FROM products
+            WHERE id = ?
+            `,
+            [productId]
+        );
+
+        if (products.length === 0) {
+            return res.status(404).json({
+                message: "Product not found"
+            });
+        }
+
+        const product = products[0];
+
+        // Check stock
+        if (product.stock < quantity) {
+            return res.status(400).json({
+                message: `Only ${product.stock} items available in stock`
+            });
+        }
+
+        // Calculate total amount
+        const totalAmount =
+            Number(product.price) * Number(quantity);
+
+        // Get database connection
+        connection = await db.getConnection();
+
+        // Start transaction
+        await connection.beginTransaction();
+
+        // Create order
+        const orderId =
+            await orderModel.createOrderWithConnection(
+                connection,
+                userId,
+                totalAmount,
+                "PLACED",
+                fullName,
+                phone,
+                address,
+                city,
+                state,
+                pincode
+            );
+
+        // Add product to order_items
+        await orderModel.addOrderItemWithConnection(
+            connection,
+            orderId,
+            product.id,
+            quantity,
+            product.price
+        );
+
+        // Update product stock
+        const stockResult =
+            await orderModel.updateProductStockWithConnection(
+                connection,
+                product.id,
+                quantity
+            );
+
+        if (stockResult.affectedRows === 0) {
+            throw new Error(
+                `Insufficient stock for ${product.name}`
+            );
+        }
+
+        // Commit transaction
+        await connection.commit();
+
+        res.status(201).json({
+            message: "Order placed successfully",
+            orderId: orderId,
+            totalAmount: totalAmount,
+            status: "PLACED"
+        });
+
+    } catch (error) {
+
+        // Rollback transaction if error occurs
+        if (connection) {
+            await connection.rollback();
+        }
+
+        console.error("Buy Now order error:", error);
+
+        res.status(500).json({
+            message: "Unable to place order"
+        });
+
+    } finally {
+
+        // Release database connection
+        if (connection) {
+            connection.release();
+        }
+
+    }
+};
 
 // Get User Orders
 const getUserOrders = async (req, res) => {
@@ -317,6 +505,7 @@ const cancelOrder = async (req, res) => {
 
 module.exports = {
     placeOrder,
+    buyNowOrder,
     getUserOrders,
     getOrderDetails,
     getAllOrders,

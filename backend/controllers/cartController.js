@@ -22,6 +22,29 @@ const addToCart = async (req, res) => {
         // Get logged-in user's ID from JWT
         const userId = req.user.id;
 
+        // Check product stock
+        const product = await cartModel.getProductStock(product_id);
+
+        if (!product) {
+            return res.status(404).json({
+                message: "Product not found"
+            });
+        }
+
+         // Check whether product is out of stock
+        if (product.stock <= 0) {
+            return res.status(400).json({
+                message: "Product is out of stock"
+            });
+        }
+
+        // Check whether requested quantity is available
+        if (quantity > product.stock) {
+            return res.status(400).json({
+                message: `Only ${product.stock} items available in stock`
+            });
+        }
+
         // Check whether cart already exists
         let cart = await cartModel.findCartByUserId(userId);
 
@@ -41,6 +64,13 @@ const addToCart = async (req, res) => {
         if (existingItem) {
             const newQuantity = existingItem.quantity + quantity;
 
+            // Check total cart quantity against available stock
+            if (newQuantity > product.stock) {
+                return res.status(400).json({
+                    message: `Only ${product.stock} items available in stock`
+                });
+            }
+
             await cartModel.updateCartItem(
                 cart.id,
                 product_id,
@@ -49,19 +79,21 @@ const addToCart = async (req, res) => {
 
             return res.status(200).json({
                 message: "Product quantity updated in cart",
-                quantity: newQuantity
+                quantity: newQuantity,
+                cartItemId: existingItem.id
             });
         }
 
         // Add new product to cart
-        await cartModel.addCartItem(
+        const cartItemId = await cartModel.addCartItem(
             cart.id,
             product_id,
             quantity
         );
 
         res.status(201).json({
-            message: "Product added to cart successfully"
+            message: "Product added to cart successfully",
+            cartItemId: cartItemId
         });
 
     } catch (error) {

@@ -59,6 +59,108 @@ const addOrderItem = async (orderId, productId, quantity, price) => {
 };
 
 
+// Update product stock
+const updateProductStock = async (productId, quantity) => {
+    const [result] = await db.query(
+        `
+        UPDATE products
+        SET stock = stock - ?
+        WHERE id = ?
+        AND stock >= ?
+        `,
+        [quantity, productId, quantity]
+    );
+
+    return result;
+};
+
+
+// Create new order using transaction connection
+const createOrderWithConnection = async (
+    connection,
+    userId,
+    totalAmount,
+    status,
+    fullName,
+    phone,
+    address,
+    city,
+    state,
+    pincode
+) => {
+    const [result] = await connection.query(
+        `
+        INSERT INTO orders
+        (
+            user_id,
+            total_amount,
+            status,
+            full_name,
+            phone,
+            address,
+            city,
+            state,
+            pincode
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+            userId,
+            totalAmount,
+            status,
+            fullName,
+            phone,
+            address,
+            city,
+            state,
+            pincode
+        ]
+    );
+
+    return result.insertId;
+};
+
+
+// Add product to order using transaction connection
+const addOrderItemWithConnection = async (
+    connection,
+    orderId,
+    productId,
+    quantity,
+    price
+) => {
+    const [result] = await connection.query(
+        `
+        INSERT INTO order_items
+        (order_id, product_id, quantity, price)
+        VALUES (?, ?, ?, ?)
+        `,
+        [orderId, productId, quantity, price]
+    );
+
+    return result.insertId;
+};
+
+
+// Update product stock using transaction connection
+const updateProductStockWithConnection = async (
+    connection,
+    productId,
+    quantity
+) => {
+    const [result] = await connection.query(
+        `
+        UPDATE products
+        SET stock = stock - ?
+        WHERE id = ?
+        AND stock >= ?
+        `,
+        [quantity, productId, quantity]
+    );
+
+    return result;
+};
+
 // Get orders of a user
 const getOrdersByUserId = async (userId) => {
     const [rows] = await db.query(
@@ -222,6 +324,10 @@ const cancelOrder = async (orderId, userId) => {
 module.exports = {
     createOrder,
     addOrderItem,
+    updateProductStock,
+    createOrderWithConnection,
+    addOrderItemWithConnection,
+    updateProductStockWithConnection,
     getOrdersByUserId,
     getOrderById,
     getOrderItems,
