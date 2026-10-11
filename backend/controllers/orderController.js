@@ -113,7 +113,7 @@ const placeOrder = async (req, res) => {
             );
 
             if (stockResult.affectedRows === 0) {
-                throw new Error( `Insufficient stock for ${item.name}` );
+                throw new Error(`Insufficient stock for ${item.name}`);
             }
 
         }
@@ -145,18 +145,18 @@ const placeOrder = async (req, res) => {
     } catch (error) {
 
         // Rollback transaction if error occurs 
-        if (connection) { 
+        if (connection) {
             await connection.rollback();
         }
 
         console.error("Place order error:", error);
 
-        res.status(500).json({ 
-            message: "Unable to place order" 
-        }); 
-    } finally { 
+        res.status(500).json({
+            message: "Unable to place order"
+        });
+    } finally {
         // Release database connection 
-        if (connection) { 
+        if (connection) {
             connection.release();
         }
 
@@ -453,9 +453,21 @@ const updateOrderStatus = async (req, res) => {
             status
         );
 
-        if (result.affectedRows === 0) {
+        if (result.outcome === "NOT_FOUND") {
             return res.status(404).json({
                 message: "Order not found"
+            });
+        }
+
+        if (result.outcome === "NOT_CANCELLABLE") {
+            return res.status(400).json({
+                message: `Order cannot be cancelled. Current status: ${result.status}`
+            });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({
+                message: "Order status cannot be updated"
             });
         }
 

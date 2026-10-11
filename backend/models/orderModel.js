@@ -169,10 +169,21 @@ const getOrdersByUserId = async (userId) => {
             o.id,
             o.total_amount,
             o.status,
-            o.created_at
+            o.created_at,
+            oi.id AS order_item_id,
+            oi.product_id,
+            p.name AS product_name,
+            p.image_url,
+            oi.quantity,
+            oi.price AS product_price,
+            (oi.quantity * oi.price) AS subtotal
         FROM orders o
+        LEFT JOIN order_items oi
+            ON o.id = oi.order_id
+        LEFT JOIN products p
+            ON oi.product_id = p.id
         WHERE o.user_id = ?
-        ORDER BY o.created_at DESC
+        ORDER BY o.created_at DESC, oi.id ASC
         `,
         [userId]
     );
@@ -215,6 +226,7 @@ const getOrderItems = async (orderId) => {
             oi.id,
             oi.product_id,
             p.name,
+            p.image_url,
             oi.quantity,
             oi.price,
             (oi.quantity * oi.price) AS subtotal
@@ -289,13 +301,126 @@ const getOrderByIdForAdmin = async (orderId) => {
 };
 
 
+// Cancel order transaction (used for both user and admin)
+const cancelOrderTransaction = async (orderId, userId = null) => {
+    let connection;
+
+    try {
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        let query = `
+            SELECT id, status
+            FROM orders
+            WHERE id = ?
+        `;
+
+        const params = [orderId];
+
+        if (userId !== null) {
+            query += " AND user_id = ?";
+            params.push(userId);
+        }
+
+        query += " FOR UPDATE";
+
+        const [orders] = await connection.query(query, params);
+
+        if (orders.length === 0) {
+            await connection.rollback();
+
+            return {
+                affectedRows: 0,
+                outcome: "NOT_FOUND"
+            };
+        }
+
+        const order = orders[0];
+
+        if (!["PLACED", "CONFIRMED"].includes(order.status)) {
+            await connection.rollback();
+
+            return {
+                affectedRows: 0,
+                outcome: "NOT_CANCELLABLE",
+                status: order.status
+            };
+        }
+
+        const [items] = await connection.query(
+            `
+            SELECT product_id, quantity
+            FROM order_items
+            WHERE order_id = ?
+            `,
+            [orderId]
+        );
+
+        for (const item of items) {
+            const [stockResult] = await connection.query(
+                `
+                UPDATE products
+                SET stock = stock + ?
+                WHERE id = ?
+                `,
+                [item.quantity, item.product_id]
+            );
+
+            if (stockResult.affectedRows !== 1) {
+                throw new Error(
+                    `Unable to restore stock for product ${item.product_id}`
+                );
+            }
+        }
+
+        const [result] = await connection.query(
+            `
+            UPDATE orders
+            SET status = 'CANCELLED'
+            WHERE id = ?
+            AND status IN ('PLACED', 'CONFIRMED')
+            `,
+            [orderId]
+        );
+
+        if (result.affectedRows !== 1) {
+            throw new Error("Unable to cancel order");
+        }
+
+        await connection.commit();
+
+        return {
+            affectedRows: 1,
+            outcome: "CANCELLED"
+        };
+
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+        }
+
+        throw error;
+
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+};
+
+
 // Update order status
 const updateOrderStatus = async (orderId, status) => {
+    if (status === "CANCELLED") {
+        return cancelOrderTransaction(orderId);
+    }
+
     const [result] = await db.query(
         `
         UPDATE orders
         SET status = ?
         WHERE id = ?
+        AND status <> 'CANCELLED'
         `,
         [status, orderId]
     );
@@ -304,20 +429,9 @@ const updateOrderStatus = async (orderId, status) => {
 };
 
 
-// Cancel order
+// Cancel order - User
 const cancelOrder = async (orderId, userId) => {
-    const [result] = await db.query(
-        `
-        UPDATE orders
-        SET status = 'CANCELLED'
-        WHERE id = ?
-        AND user_id = ?
-        AND status IN ('PLACED', 'CONFIRMED')
-        `,
-        [orderId, userId]
-    );
-
-    return result;
+    return cancelOrderTransaction(orderId, userId);
 };
 
 

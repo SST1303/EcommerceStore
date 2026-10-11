@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const db = require("./config/db"); // database connection
@@ -14,6 +15,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// PRODUCT IMAGES
+app.use("/images/products", express.static(path.join(__dirname, "../frontend/images/products")));
 
 // Routes
 app.use("/api/auth", authRoutes);

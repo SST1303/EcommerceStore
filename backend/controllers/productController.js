@@ -17,6 +17,20 @@ const createProduct = async (req, res) => {
             });
         }
 
+
+        if (!Number.isFinite(Number(price)) || Number(price) <= 0) {
+            return res.status(400).json({
+                message: "Price must be greater than zero"
+            });
+        }
+
+        if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
+            return res.status(400).json({
+                message: "Stock must be a non-negative integer"
+            });
+        }
+
+
         const productId = await productModel.createProduct({
             name,
             description,
@@ -84,6 +98,17 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
+
+
+        const { stock } = req.body;
+
+        if (stock !== undefined &&
+            (!Number.isInteger(Number(stock)) || Number(stock) < 0)) {
+            return res.status(400).json({
+                message: "Stock must be a non-negative integer"
+            });
+        }
+
 
         const affectedRows = await productModel.updateProduct(id, req.body);
 

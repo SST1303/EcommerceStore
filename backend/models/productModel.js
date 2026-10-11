@@ -102,10 +102,7 @@ const updateProduct = async (id, product) => {
 };
 
 const deleteProduct = async (id) => {
-    const [result] = await db.execute(
-        "DELETE FROM products WHERE id = ?",
-        [id]
-    );
+    const [result] = await db.execute("DELETE FROM products WHERE id = ?", [id]);
 
     return result.affectedRows;
 };

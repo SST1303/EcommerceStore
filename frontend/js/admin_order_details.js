@@ -183,7 +183,7 @@ function displayOrderDetails(order, items) {
                     <br>
 
                     <strong> Email: </strong>
-                    ${order.email}
+                    ${order.email} 
 
                 </p>
 
