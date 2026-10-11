@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+    <header class="admin-navbar">
+        <h2>Ecommerce Store - Admin</h2>
+
+        <a href="dashboard.html">Dashboard</a>
+        <a href="../index.html">Home</a>
+
+        <button id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="admin-dashboard">
+        <h1>Manage Users</h1>
+        <p>View users and update their roles.</p>
+
+        <p id="message" role="status"></p>
+
+        <div class="user-filters">
+            <input type="text" id="searchUser" placeholder="Search by name or email...">
+
+            <select id="filterRole">
+                <option value="ALL">All Roles</option>
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+            </select>
+        </div>
+
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Current Role</th>
+                        <th>Update Role</th>
+                    </tr>
+                </thead>
+
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="5">Loading users...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <button type="button" id="prevPage" disabled>Previous</button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button type="button" id="nextPage" disabled>Next</button>
+        </div>
+
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/manage_users.js"></script>
+
+</body>
+
+</html>

@@ -36,3 +36,264 @@
     object-fit: contain;
     border-radius: 8px;
 }
+
+/* ==================== CART ==================== */
+
+.cart-section {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.cart-section h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.cart-product-wrapper {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.cart-item.selected {
+    border: 2px solid #333;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-info h3 {
+    margin-bottom: 8px;
+}
+
+.cart-item-info p {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.cart-item-price {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.product-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.product-actions button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.cart-summary {
+    background-color: white;
+    padding: 25px;
+    margin-top: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: right;
+}
+
+.cart-total {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.cart-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.clear-cart-btn,
+.checkout-btn {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.clear-cart-btn {
+    background-color: #e74c3c;
+}
+
+.clear-cart-btn:hover {
+    background-color: #c0392b;
+}
+
+.checkout-btn {
+    background-color: #333;
+}
+
+.checkout-btn:hover {
+    background-color: #555;
+}
+
+/* ==================== CHECKOUT ==================== */
+
+.checkout-section {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.checkout-section h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.checkout-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.checkout-item-name {
+    font-weight: bold;
+}
+
+.checkout-item-details {
+    color: #666;
+    font-size: 14px;
+}
+
+.checkout-item-price {
+    font-weight: bold;
+}
+
+.checkout-total {
+    text-align: right;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.place-order-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 6px;
+    background-color: #333;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.place-order-btn:hover {
+    background-color: #555;
+}
+
+.place-order-btn:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+#orderMessage {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.address-section {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.address-section h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.delivery-address {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.delivery-address h2 {
+    margin-bottom: 12px;
+}
+
+.delivery-address p {
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 600px) {
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cart-buttons {
+        flex-direction: column;
+    }
+
+    .clear-cart-btn,
+    .checkout-btn {
+        width: 100%;
+    }
+}
